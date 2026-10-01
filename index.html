@@ -63,6 +63,16 @@
   header.top .hausaufgaben-link{background:var(--red);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.18);}
   header.top .hausaufgaben-link:hover{background:#a8473d;transform:translateY(-1px);}
   @media print{header.top .header-actions{display:none !important;}}
+  /* Handy: Kopfzeile umbrechen - Titel/Bereiche oben, Feedback und
+     Hausaufgaben als volle Zeile darunter (statt rechts abgeschnitten). */
+  header.top > div:nth-child(2){flex:1 1 0;min-width:0;}
+  @media(max-width:600px){
+    header.top{flex-wrap:wrap;align-items:flex-start;padding:16px;gap:12px;}
+    header.top .badge{width:40px;height:40px;}
+    header.top h1{font-size:1.1rem;}
+    header.top .header-actions{order:3;width:100%;margin-left:0;flex-direction:row;}
+    header.top .header-actions > *{flex:1 1 0;}
+  }
   header.top .pill-row span{
     display:inline-flex;align-items:center;gap:5px;
     background:rgba(255,255,255,0.2);border-radius:999px;padding:3px 11px 3px 8px;font-size:0.76rem;font-weight:700;
