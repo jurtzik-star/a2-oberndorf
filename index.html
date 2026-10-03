@@ -790,7 +790,7 @@
       <div id="ktIntroBlock" style="display:none;">
         <h2 style="margin-top:0;color:var(--green-900);font-size:1.05rem;">📝 Kapiteltest</h2>
         <p class="hint-text" style="text-align:left;" id="ktIntroCount">Dieser Test prüft Hören, Wortschatz, Lesen, Grammatik und Schreiben – <span id="ktIntroCountNum">20</span> Aufgaben insgesamt. Du bekommst nach jeder Antwort direkte Rückmeldung, am Ende ein Gesamtergebnis.</p>
-        <p class="hint-text" style="text-align:left;color:var(--red);"><b>Achtung:</b> Zeitlimit 45 Minuten, der Timer läuft ab dem Start durch. Ein Pausieren ist nicht möglich – verlässt du die App/den Tab währenddessen, gilt der Versuch als abgebrochen. Nimm dir also am Stück ausreichend Zeit.</p>
+        <p class="hint-text" style="text-align:left;color:var(--red);"><b>Achtung:</b> Zeitlimit 45 Minuten, der Timer läuft ab dem Start durch. Ein Pausieren ist nicht möglich. Wenn kurz der Bildschirm ausgeht oder eine Nachricht kommt, ist das kein Problem: Bist du innerhalb von 2 Minuten zurück, läuft der Test weiter. Bist du länger weg oder öffnest du in der App einen anderen Bereich, gilt der Versuch als abgebrochen. Nimm dir also am Stück ausreichend Zeit.</p>
         <div class="row-btns" style="justify-content:center;">
           <button class="btn-primary" id="btnKtStart">Test starten ▶️</button>
         </div>
@@ -2889,11 +2889,24 @@ document.addEventListener("visibilitychange", ()=>{
   // auf dem Kapiteltest-Bildschirm (nur Tab/App kurz verlassen) - deshalb
   // die Abbruch-Ansicht direkt zeigen, statt erst auf ein erneutes Öffnen
   // zu warten.
-  if(document.hidden && state.ktActive){
-    endKtDueToLeaving();
-    showKtAbortedUI();
+  // Seit 03.10.2026 mit Kulanz: Geht nur kurz der Bildschirm aus oder kommt
+  // ein Anruf/eine Nachricht, läuft der Test weiter, wenn man innerhalb von
+  // KT_KULANZ_SEKUNDEN zurückkommt. Der Timer (Endzeitpunkt) läuft dabei
+  // normal weiter. Wer länger weg ist, hat den Test abgebrochen.
+  if(document.hidden){
+    if(state.ktActive) state.ktHiddenSeit = Date.now();
+    return;
+  }
+  if(state.ktActive && state.ktHiddenSeit){
+    const wegSek = (Date.now() - state.ktHiddenSeit) / 1000;
+    state.ktHiddenSeit = null;
+    if(wegSek > KT_KULANZ_SEKUNDEN){
+      endKtDueToLeaving();
+      showKtAbortedUI();
+    }
   }
 });
+const KT_KULANZ_SEKUNDEN = 120;
 document.getElementById("btnKtAbortedRestart").addEventListener("click", openKapiteltest);
 function openKapiteltest(){
   if(state.ktWasAborted){
